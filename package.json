@@ -1,0 +1,24 @@
+{
+  "name": "YTSync",
+  "version": "1.0.0",
+  "description": "A Youtube Video syncer using Youtube JS API.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+  },
+  "engines": {
+    "node": "4.0.0"
+  },
+  "keywords": [
+    "node",
+    "heroku"
+  ],
+  "author": "Thomas Hall",
+  "contributors": [
+    "Joseph Lee",
+    "Daniel Trebe"
+  ],
+  "license": "MIT"
+}

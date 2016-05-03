@@ -1,0 +1,5 @@
+{
+  "name": "YTSync",
+  "description": "A Youtube Video syncer using Youtube JS API.",
+  "keywords": ["node", "static"]
+}
