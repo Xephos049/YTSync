@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<body style= "background-color:black;">
+
+
+  <!-- Current issues: Update button doesn't change video, may need to do a mini refresh on videos only. 
+  Another is that full youtube link do not work so we may have to concat it just to get the video id.
+  Implementing a database is on the task list.
+  -->
+
+  <!-- https://www.youtube.com/watch?v=o8DY59a03iE -->
+
+
+<!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+<div id="player1"></div>
+<div id="player2"></div>
+<!-- <iframe id="player1" type="text/html" width="640" height="390"
+src="https://www.youtube.com/watch?v=o8DY59a03iE"
+frameborder="0"></iframe>
+-->
+<!-- This is where the input boxes and buttons appear -->
+<form>
+  <font color="#FFFFFF">Left Video:</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#FFFFFF">Time Offset (XhYYmZZs):</font><br>
+  <input type="text" id="newlink1">
+  <input type="text" id="newoffset1"><br>
+</form><br>
+<form>
+  <font color="#FFFFFF">Right Video:</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#FFFFFF">Time Offset (XhYYmZZs):</font><br>
+  <input type="text" id="newlink2">
+  <input type="text" id="newoffset2"><br>
+</form>
+<button onclick="startstop()">Start/Stop</button>
+<button id = "refresh">Update Vids</button>
+<button onclick="save()">Save Vids</button>
+<form>
+<a id="sharelink" href="/">Click Save Vids to generate a sharing URL.</a>
+</form>
+
+<script>
+      // 2. This code loads the IFrame Player API code asynchronously.
+
+
+      var tag = document.createElement('script');
+      var link1 = 'o8DY59a03iE'
+      var link2 = '8nBPqAMxDWY'
+      var off1 = '1m52s'
+      var off2 = '2m3s'
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      var urlquery = window.location.href.split("?");
+      if (urlquery.length>1){
+          var params = urlquery[1].split("&");
+        link1 = params[0].split("=")[1];
+        link2 = params[1].split("=")[1];
+        off1 = params[2].split("=")[1];
+        off2 = params[3].split("=")[1];
+      }
+
+      console.log("base url =" + urlquery[0]);
+
+      off1 = (typeof off1 === 'undefined') ? '0s' : off1;
+      off2 = (typeof off2 === 'undefined') ? '0s' : off2;
+
+      document.getElementById("newlink1").value = link1;
+      document.getElementById("newlink2").value = link2;
+      document.getElementById("newoffset1").value = off1;
+      document.getElementById("newoffset2").value = off2;
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      var player1,player2,offSec1 = 0, offSec2 = 0;
+      
+      offSec1 = parseOffset(off1);
+      offSec2 = parseOffset(off2);
+      
+      console.log("Video 1 offset in seconds: " + offSec1);
+      console.log("Video 2 offset in seconds: " + offSec2);
+
+      function onYouTubeIframeAPIReady() {
+        player1 = new YT.Player('player1', {
+          height: '390',
+          width: '640',
+          videoId: link1,
+          events: {
+            'onReady': onPlayer1Ready,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+        player2 = new YT.Player('player2', {
+          height: '390',
+          width: '640',
+          videoId: link2,
+          events: {
+            'onReady': onPlayer2Ready,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+
+      function parseOffset(item) {
+        var match = /([0-9]*h)?([0-9]*m)?([0-9]*s)?/.exec(item);
+        var multiplier = 1;
+        var result = 0;
+    
+        for (i = match.length - 1; i > 0; i--) {
+          if (match[i]) {
+            result += parseInt(match[i].replace(/[A-Za-z]/g, "")) * multiplier;
+          }
+          multiplier *= 60;
+        }
+        return result;
+      }
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayer1Ready(event) {
+        event.target.seekTo(offSec1);
+        event.target.playVideo();
+      }
+      function onPlayer2Ready(event) {
+        event.target.seekTo(offSec2);
+        event.target.playVideo();
+      }
+
+// 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+      var done = false;
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && !done) {
+          // setTimeout(stopVideo, 6000);
+          done = true;
+        }
+      }
+      // function stopVideo() {
+      //   player.stopVideo();
+      //   player1.stopVideo();
+      // }
+
+      var playing = true;
+      function startstop() {
+        if (playing){
+          player1.pauseVideo();
+          player2.pauseVideo();
+          playing = false;
+        }
+        else {
+          player1.playVideo();
+          player2.playVideo();
+          playing = true;
+        }
+      }
+
+      function generateSaveUrl() {
+        var video1 = document.getElementById("newlink1").value;
+        var video2 = document.getElementById("newlink2").value;
+        var offset1 = document.getElementById("newoffset1").value;
+        var offset2 = document.getElementById("newoffset2").value;
+        offset1 = (typeof offset1 === 'undefined') ? '0s' : offset1 || '0s';
+        offset2 = (typeof offset2 === 'undefined') ? '0s' : offset2 || '0s';
+        var saveurl = urlquery[0] + "save";
+        console.log("off1=" + offset1 + ", off2=" + offset2);
+        saveurl += '?vid1='+YouTubeGetID(video1) + '&vid2=' + YouTubeGetID(video2) + '&off1=' + offset1 + '&off2=' + offset2;
+        return saveurl;
+      }
+
+      function save() {
+        var saveRequest = new XMLHttpRequest();
+        saveRequest.onreadystatechange = function() { 
+            if (saveRequest.readyState == 4 && saveRequest.status == 200) {
+              var shareurl = urlquery[0] + saveRequest.responseText;
+              console.log("Short URL: " + shareurl);
+              var link = document.getElementById("sharelink");
+              link.setAttribute('href', shareurl);
+              link.innerHTML = shareurl;
+            }
+        }
+
+        saveRequest.open("GET", generateSaveUrl(), true);
+        saveRequest.send(null);
+      }
+
+      function YouTubeGetID(url){
+        var ID = '';
+        url = url.replace(/(>|<)/gi,'').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
+        if(url[2] !== undefined) {
+          ID = url[2].split(/[^0-9a-z_\-]/i);
+          ID = ID[0];
+        }
+        else {
+          ID = url;
+        }
+        return ID;
+      }
+      document.getElementById("refresh").addEventListener("click", function() {
+      // var newlink1, newlink;
+      // function refresh() {
+        var video1 = document.getElementById("newlink1").value;
+        var video2 = document.getElementById("newlink2").value;
+        var offset1 = document.getElementById("newoffset1").value;
+        var offset2 = document.getElementById("newoffset2").value;
+        offset1 = (typeof offset1 === 'undefined') ? '0s' : offset1 || '0s';
+        offset2 = (typeof offset2 === 'undefined') ? '0s' : offset2 || '0s';
+        var url = urlquery[0];
+        console.log(video1);
+        console.log(video2);
+        console.log("off1=" + offset1 + ", off2=" + offset2);
+        url += '?vid1='+YouTubeGetID(video1) + '&vid2=' + YouTubeGetID(video2) + '&off1=' + offset1 + '&off2=' + offset2;
+        // url += '?' + link + '?' + link1;
+                                                          console.log(url);
+        window.location.href = url;
+      });
+    </script>
+  </body>
+  </html>

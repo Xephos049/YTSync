@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<body style= "background-color:black;">
+
+
+  <!-- Current issues: Update button doesn't change video, may need to do a mini refresh on videos only. 
+  Another is that full youtube link do not work so we may have to concat it just to get the video id.
+  Implementing a database is on the task list.
+  -->
+
+  <!-- https://www.youtube.com/watch?v=o8DY59a03iE -->
+
+
+<!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+<div id="player"></div>
+<div id="player1"></div>
+<!-- <iframe id="player1" type="text/html" width="640" height="390"
+src="https://www.youtube.com/watch?v=o8DY59a03iE"
+frameborder="0"></iframe>
+-->
+<!-- This is where the input boxes and buttons appear -->
+<form>
+  <font color="#FFFFFF">Left Video:</font><br>
+  <input type="text" name="newlink"><br>
+</form>
+<form>
+  <font color="#FFFFFF">Right Video:</font><br>
+  <input type="text" name="newlink1"><br>
+</form>
+<button onclick="startstop()">Start/Stop</button>
+<button id = "refresh">Update Vids</button>
+<button onclick="save()">Save Vids</button>
+
+<!-- The script that willbe put into backend eventually -->
+<script>
+      // 2. This code loads the IFrame Player API code asynchronously.
+
+
+      var tag = document.createElement('script');
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      var urlquery = window.location.href.split("?");
+      if (urlquery.length==1){
+        var link = 'o8DY59a03iE'
+        var link1 = '8nBPqAMxDWY'
+      }
+      else {
+        link = urlquery[1];
+        link1 = urlquery[2];
+      }
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      var player,player1;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          videoId: link,
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+        player1 = new YT.Player('player1', {
+          height: '390',
+          width: '640',
+          videoId: link1,
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+
+      // 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+      var done = false;
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && !done) {
+          // setTimeout(stopVideo, 6000);
+          done = true;
+        }
+      }
+      // function stopVideo() {
+      //   player.stopVideo();
+      //   player1.stopVideo();
+      // }
+
+      var playing = true;
+      function startstop() {
+        if (playing){
+          player.pauseVideo();
+          player1.pauseVideo();
+          playing = false;
+        }
+        else {
+          player.playVideo();
+          player1.playVideo();
+          playing = true;
+        }
+      }
+
+      function YouTubeGetID(url){
+        var ID = '';
+        url = url.replace(/(>|<)/gi,'').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
+        if(url[2] !== undefined) {
+          ID = url[2].split(/[^0-9a-z_\-]/i);
+          ID = ID[0];
+        }
+        else {
+          ID = url;
+        }
+        return ID;
+      }
+      document.getElementById("refresh").addEventListener("click", function() {
+      // var newlink1, newlink;
+      // function refresh() {
+        var video = document.getElementById("newlink");
+        var video1 = document.getElementById("newlink1");
+        var url = urlquery[0];   
+        console.log(video); 
+        console.log(video1);
+        url += '?'+YouTubeGetID(video) + '?' + YouTubeGetID(video1);
+        // url += '?' + link + '?' + link1;
+        window.location.href = url;
+      });
+    </script>
+  </body>
+  </html>
