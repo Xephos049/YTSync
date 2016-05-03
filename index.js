@@ -4,7 +4,7 @@ var file = "vidsync.html";
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
-var mongourl = 'mongodb://ec2-54-186-7-133.us-west-2.compute.amazonaws.com:27017/webappdb';
+var mongourl = 'mongodb://ec2-54-187-86-74.us-west-2.compute.amazonaws.com:27017/webappdb';
 
 
 var insertUrlTest = function(db, callback) {
