@@ -4,8 +4,8 @@ var file = "vidsync.html";
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
-// var mongourl = 'mongodb://ec2-54-187-86-74.us-west-2.compute.amazonaws.com:27017/webappdb';
-var mongourl = 'mongodb://ds013172.mlab.com:13172/heroku_b371r9tw';
+var mongourl = 'mongodb://localhost:27017/webappdb'
+// var mongourl = 'mongodb://ds013172.mlab.com:13172/heroku_b371r9tw';
 
 var insertUrlTest = function(db, callback) {
     db.collection('savedurls').insertOne( {"shorturl": "1", "vid1": "1", "vid2": "1", "off1": "1s", "off2": "1s"}, function(err, result) {
