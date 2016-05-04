@@ -4,8 +4,8 @@ var file = "vidsync.html";
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
-var mongourl = 'mongodb://ec2-54-187-86-74.us-west-2.compute.amazonaws.com:27017/webappdb';
-
+// var mongourl = 'mongodb://ec2-54-187-86-74.us-west-2.compute.amazonaws.com:27017/webappdb';
+var mongourl = 'mongodb://@ds013172.mlab.com:13172/heroku_b371r9tw';
 
 var insertUrlTest = function(db, callback) {
     db.collection('savedurls').insertOne( {"shorturl": "1", "vid1": "1", "vid2": "1", "off1": "1s", "off2": "1s"}, function(err, result) {
@@ -64,6 +64,7 @@ var requestListener = function (req, res) {
     };
 
 
+      /*
     MongoClient.connect(mongourl, function(err,db) {
       assert.equal(null, err);
       getNextSequence(db, function(seq) {
@@ -78,6 +79,34 @@ var requestListener = function (req, res) {
         });
       });
     });
+      */
+      MongoClient.connect(mongourl, function(err,db) {
+      assert.equal(null, err);
+      //check if record to be inserted already exists
+      //var cursor1 = db.collection('savedurls').find({'vid1': url.query.vid1, 'vid2': url.query.vid2, 'off1': url.query.off1, 'off2': url.query.off2});
+      var doc1 = db.collection('savedurls').findOne({'vid1': url.query.vid1, 'vid2': url.query.vid2, 'off1': url.query.off1, 'off2': url.query.off2});
+      if (doc1 == null)//if record does not already exist
+      {
+        getNextSequence(db, function(seq) {
+          console.log("ShortURL: " + seq);
+          shortUrl = seq;
+          insertShortUrl(db, function() {
+            db.close();
+            //Return the short url                                                                                                                                                   
+            console.log("Finished insert, returning shorturl: " + shortUrl);
+            res.writeHead(200);
+            res.end("" + shortUrl);
+          });
+        });
+      }
+      else { //if record does already exist in db
+        console.log("record already exists in database")
+        res.writeHead(200);
+        res.end("" + doc1.shorturl);
+      }
+    });
+
+
   }
   //Check for short url
   else if (/^\/\d+$/.exec(url.pathname)) {
