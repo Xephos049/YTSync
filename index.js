@@ -65,7 +65,7 @@ var requestListener = function (req, res) {
     };
 
 
-      /*
+      
     MongoClient.connect(mongourl, function(err,db) {
       assert.equal(null, err);
       getNextSequence(db, function(seq) {
@@ -80,7 +80,8 @@ var requestListener = function (req, res) {
         });
       });
     });
-      */
+      
+      /*
       MongoClient.connect(mongourl, function(err,db) {
       assert.equal(null, err);
       //check if record to be inserted already exists
@@ -106,7 +107,7 @@ var requestListener = function (req, res) {
         res.end("" + doc1.shorturl);
       }
     });
-
+    */
 
   }
   //Check for short url
